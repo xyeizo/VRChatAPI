@@ -9,18 +9,23 @@ namespace VRChatAPI.Modules
 {
     public class EventManager
     {
-        private static Dictionary<string, Action<string>> eventHandlers = new Dictionary<string, Action<string>>
-        {
-            { "Successfully left room", (input) => OnRoomLeft.ProcessLog(OnRoomLeftEvent, input) },
-            { "Joining wrld_", (input) => OnRoomJoined.ProcessLog(OnRoomJoinedEvent, input) },
-            { "OnPlayerLeft", (input) => OnPlayerLeft.ProcessLog(OnPlayerLeftEvent, input) },
-            { "OnPlayerJoined", (input) => OnPlayerJoined.ProcessLog(OnPlayerJoinedEvent, input) }
-        };
+        private Dictionary<string, Action<string>> eventHandlers;
 
-        public static event EventHandler<OnRoomLeft> OnRoomLeftEvent;
-        public static event EventHandler<OnRoomJoined> OnRoomJoinedEvent;
-        public static event EventHandler<OnPlayerLeft> OnPlayerLeftEvent;
-        public static event EventHandler<OnPlayerJoined> OnPlayerJoinedEvent;
+        public event EventHandler<OnRoomLeft> OnRoomLeftEvent;
+        public event EventHandler<OnRoomJoined> OnRoomJoinedEvent;
+        public event EventHandler<OnPlayerLeft> OnPlayerLeftEvent;
+        public event EventHandler<OnPlayerJoined> OnPlayerJoinedEvent;
+
+        public EventManager()
+        {
+            eventHandlers = new Dictionary<string, Action<string>>
+            {
+                { "Successfully left room", (input) => OnRoomLeft.ProcessLog(OnRoomLeftEvent, input) },
+                { "Joining wrld_", (input) => OnRoomJoined.ProcessLog(OnRoomJoinedEvent, input) },
+                { "OnPlayerLeft", (input) => OnPlayerLeft.ProcessLog(OnPlayerLeftEvent, input) },
+                { "OnPlayerJoined", (input) => OnPlayerJoined.ProcessLog(OnPlayerJoinedEvent, input) }
+            };
+        }
 
         public Task HandleEvent(string input)
         {

@@ -19,10 +19,11 @@ namespace VRChatAPI.SDK
             if (vRChatConfig != null)
                 _vrChatConfig = vRChatConfig;
 
-            CurrentPlayer = new LocalPlayer();
-
             if (_vrChatConfig.MonitorLogFile)
                 LogFileMonitor = new LogFileMonitor(this);
+
+            CurrentPlayer = new LocalPlayer();
+            EventManager = new EventManager();
         }
 
 
