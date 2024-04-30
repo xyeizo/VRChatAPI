@@ -48,7 +48,7 @@ namespace VRChatAPI.Modules
                         string content = await streamReader.ReadToEndAsync();
                         _lastPosition = fileStream.Position;
 
-                        await EventManager.HandleEvemt(content);
+                        await vrChatInstance.EventManager.HandleEvent(content);
                     }
                     await Task.Delay(500);
                 }
@@ -73,7 +73,7 @@ namespace VRChatAPI.Modules
             {
                 if (lines[i].Contains("Joining wrld_"))
                 {
-                    var eventArgs = new OnRoomJoined().ProcessLog(lines[i]);
+                    var eventArgs = OnRoomJoined.ProcessLog(null, lines[i]);
                     vrChatInstance.CurrentPlayer.Location = eventArgs;
                     break;
                 }

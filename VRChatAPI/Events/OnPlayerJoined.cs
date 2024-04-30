@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using VRChatAPI.SDK;
 
 namespace VRChatAPI.Events
 {
@@ -13,18 +14,24 @@ namespace VRChatAPI.Events
         public DateTime DateTime { get; set; } = DateTime.Now;
         public string DisplayName { get; set; } = string.Empty;
 
-        public event EventHandler<OnPlayerJoined> Event;
-
-        public void ProcessLog(string input)
+        public static OnPlayerJoined ProcessLog(dynamic eventHandler, string input)
         {
             var match = Regex.Match(input, @"OnPlayerJoined (.+)");
             if (match.Success)
             {
-                Data = input;
-                DisplayName = match.Groups[1].Value;
+                var instance = new OnPlayerJoined() 
+                { 
+                    Data = input, 
+                    DisplayName = match.Groups[1].Value, 
+                    DateTime = DateTime.Now 
+                };
 
-                Event?.Invoke(this, this);
+                if (eventHandler != null)
+                    eventHandler?.Invoke(null, instance);
+
+                return instance;
             }
+            return null;
         }
     }
 }

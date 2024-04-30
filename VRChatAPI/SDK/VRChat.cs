@@ -1,4 +1,6 @@
-﻿using VRChatAPI.Modules;
+﻿using System.Diagnostics;
+using VRChatAPI.Events;
+using VRChatAPI.Modules;
 using VRChatAPI.Objects;
 
 namespace VRChatAPI.SDK
@@ -10,6 +12,7 @@ namespace VRChatAPI.SDK
         public LocalPlayer CurrentPlayer { get; set; }
 
         public LogFileMonitor LogFileMonitor { get; set; }
+        public EventManager EventManager { get; set; }
 
         public VRChat(VRChatConfig vRChatConfig = null)
         {
@@ -23,6 +26,6 @@ namespace VRChatAPI.SDK
         }
 
 
-
+        public bool IsRunning() => Process.GetProcessesByName("VRChat").Any();
     }
 }

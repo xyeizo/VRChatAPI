@@ -11,16 +11,22 @@ namespace VRChatAPI.Events
         public string Data { get; set; } = string.Empty;
         public DateTime DateTime { get; set; } = DateTime.Now;
 
-        public event EventHandler<OnRoomLeft> Event;
-
-        public void ProcessLog(string input)
+        public static OnRoomLeft ProcessLog(dynamic eventHandler, string input)
         {
             if (input.Contains("Successfully left room"))
             {
-                Data = input;
+                var instance = new OnRoomLeft 
+                { 
+                    Data = input, 
+                    DateTime = DateTime.Now 
+                };
 
-                Event?.Invoke(this, this);
+                if (eventHandler != null)
+                    eventHandler?.Invoke(null, instance);
+
+                return instance;
             }
+            return null;
         }
     }
 }

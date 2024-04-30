@@ -12,21 +12,25 @@ namespace VRChatAPI.Events
         public string Data { get; set; } = string.Empty;
         public DateTime DateTime { get; set; } = DateTime.Now;
         public string WorldId { get; set; } = string.Empty;
-        public string RoomInstance { get; set; }
+        public string RoomInstance { get; set; } = string.Empty;
 
-        public event EventHandler<OnRoomJoined> Event;
-
-        public OnRoomJoined ProcessLog(string input)
+        public static OnRoomJoined ProcessLog(dynamic eventHandler, string input)
         {
             var match = Regex.Match(input, @"Joining wrld_(.+):(\d+)");
             if (match.Success)
             {
-                Data = input;
-                WorldId = match.Groups[1].Value;
-                RoomInstance = match.Groups[2].Value;
+                var instance = new OnRoomJoined
+                {
+                    Data = input,
+                    DateTime = DateTime.Now,
+                    WorldId = match.Groups[1].Value,
+                    RoomInstance = match.Groups[2].Value
+                };
 
-                Event?.Invoke(this, this);
-                return this;
+                if (eventHandler != null)
+                    eventHandler?.Invoke(null, instance);
+
+                return instance;
             }
             return null;
         }

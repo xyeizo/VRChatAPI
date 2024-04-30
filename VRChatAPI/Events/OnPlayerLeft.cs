@@ -13,18 +13,24 @@ namespace VRChatAPI.Events
         public DateTime DateTime { get; set; } = DateTime.Now;
         public string DisplayName { get; set; } = string.Empty;
 
-        public event EventHandler<OnPlayerLeft> Event;
-
-        public void ProcessLog(string input)
+        public static OnPlayerLeft ProcessLog(dynamic eventHandler, string input)
         {
             var match = Regex.Match(input, @"OnPlayerLeft (.+)");
             if (match.Success)
             {
-                Data = input;
-                DisplayName = match.Groups[1].Value;
+                var instance = new OnPlayerLeft
+                {
+                    Data = input,
+                    DateTime = DateTime.Now,
+                    DisplayName = match.Groups[1].Value
+                };
 
-                Event?.Invoke(this, this);
+                if (eventHandler != null)
+                    eventHandler?.Invoke(null, instance);
+
+                return instance;
             }
+            return null;
         }
     }
 }
