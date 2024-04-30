@@ -16,7 +16,7 @@ namespace VRChatAPI.Events
 
         public event EventHandler<OnRoomJoined> Event;
 
-        public void ProcessLog(string input)
+        public OnRoomJoined ProcessLog(string input)
         {
             var match = Regex.Match(input, @"Joining wrld_(.+):(\d+)");
             if (match.Success)
@@ -26,7 +26,9 @@ namespace VRChatAPI.Events
                 RoomInstance = match.Groups[2].Value;
 
                 Event?.Invoke(this, this);
+                return this;
             }
+            return null;
         }
     }
 }
