@@ -20,7 +20,9 @@ namespace VRChatAPI.Events
             var match = Regex.Match(input, @"OnPlayerJoined (.+)");
             if (match.Success)
             {
+                Data = input;
                 DisplayName = match.Groups[1].Value;
+
                 Event?.Invoke(this, this);
             }
         }

@@ -7,21 +7,23 @@ using System.Threading.Tasks;
 
 namespace VRChatAPI.Events
 {
-    public class OnPlayerLeft
+    public class OnRoomJoined
     {
         public string Data { get; set; } = string.Empty;
         public DateTime DateTime { get; set; } = DateTime.Now;
-        public string DisplayName { get; set; } = string.Empty;
+        public string WorldId { get; set; } = string.Empty;
+        public string RoomInstance { get; set; }
 
-        public event EventHandler<OnPlayerLeft> Event;
+        public event EventHandler<OnRoomJoined> Event;
 
         public void ProcessLog(string input)
         {
-            var match = Regex.Match(input, @"OnPlayerLeft (.+)");
+            var match = Regex.Match(input, @"Joining wrld_(.+):(\d+)");
             if (match.Success)
             {
                 Data = input;
-                DisplayName = match.Groups[1].Value;
+                WorldId = match.Groups[1].Value;
+                RoomInstance = match.Groups[2].Value;
 
                 Event?.Invoke(this, this);
             }
