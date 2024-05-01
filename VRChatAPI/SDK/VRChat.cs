@@ -7,7 +7,7 @@ namespace VRChatAPI.SDK
 {
     public class VRChat
     {
-        private VRChatConfig _vrChatConfig;
+        private VRChatConfig _vrChatConfig = new VRChatConfig();
 
         public LocalPlayer CurrentPlayer { get; } = new LocalPlayer();
         public LogFileMonitor LogFileMonitor { get; private set; }
@@ -16,8 +16,7 @@ namespace VRChatAPI.SDK
         public VRChat(VRChatConfig vrChatConfig = null)
         {
             _vrChatConfig = vrChatConfig ?? new VRChatConfig();
-            if (_vrChatConfig.MonitorLogFile)
-                LogFileMonitor = new LogFileMonitor(this);
+            LogFileMonitor = new LogFileMonitor(this);
         }
 
         public Task InitializeAsync()

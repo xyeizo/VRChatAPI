@@ -47,9 +47,16 @@ namespace VRChatAPI.Modules
                 using (FileStream fileStream = new FileStream(LogFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (StreamReader streamReader = new StreamReader(fileStream, Encoding.Default))
                 {
-                    InitializeCurrentUser(fileStream, streamReader);
-                    InitializeCurrentRoom(fileStream, streamReader);
-                    InitializeInstancePlayers(fileStream, streamReader);
+                    try
+                    {
+                        InitializeCurrentUser(fileStream, streamReader);
+                        InitializeCurrentRoom(fileStream, streamReader);
+                        InitializeInstancePlayers(fileStream, streamReader);
+                    }
+                    catch
+                    {
+
+                    }
 
                     while (!cancellationToken.IsCancellationRequested)
                     {
@@ -87,7 +94,7 @@ namespace VRChatAPI.Modules
             }
             catch (Exception ex)
             {
-                
+                Console.WriteLine($"Error during log file monitoring: {ex.ToString()}");
             }
         }
 
@@ -173,12 +180,17 @@ namespace VRChatAPI.Modules
             foreach (string line in lines)
             {
                 var userAuthenticated = OnUserAuthenticated.ProcessLog(null, line);
-                if (!string.IsNullOrEmpty(userAuthenticated.Username))
+                if (userAuthenticated != null)
                 {
-                    vrChatInstance.CurrentPlayer.Information = new User() { DisplayName = userAuthenticated.Username, UserID = userAuthenticated.UserID };
-                    break;
+                    if (!string.IsNullOrEmpty(userAuthenticated.Username))
+                    {
+                        vrChatInstance.CurrentPlayer.Information = new User() { DisplayName = userAuthenticated.Username, UserID = userAuthenticated.UserID };
+                        break;
+                    }
                 }
             }
+
+
         }
 
         public void Dispose()
