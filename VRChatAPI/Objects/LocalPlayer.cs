@@ -10,6 +10,7 @@ namespace VRChatAPI.Objects
     public class LocalPlayer
     {
         public bool IsGameRunning { get; set; } = false;
+        public 
         public OnRoomJoined? Location { get; set; } = null;
         public HashSet<string> CurrentPlayers { get; set; } = new HashSet<string>();
     }

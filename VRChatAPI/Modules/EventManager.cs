@@ -11,6 +11,7 @@ namespace VRChatAPI.Modules
     {
         private Dictionary<string, Action<string>> eventHandlers;
 
+        public event EventHandler<OnUserAuthenticated> OnUserAuthenticatedEvent;
         public event EventHandler<OnRoomLeft> OnRoomLeftEvent;
         public event EventHandler<OnRoomJoined> OnRoomJoinedEvent;
         public event EventHandler<OnPlayerLeft> OnPlayerLeftEvent;
@@ -20,6 +21,7 @@ namespace VRChatAPI.Modules
         {
             eventHandlers = new Dictionary<string, Action<string>>
             {
+                { "User Authenticated", (input) => OnUserAuthenticated.ProcessLog(OnUserAuthenticatedEvent, input) },
                 { "Successfully left room", (input) => OnRoomLeft.ProcessLog(OnRoomLeftEvent, input) },
                 { "Joining wrld_", (input) => OnRoomJoined.ProcessLog(OnRoomJoinedEvent, input) },
                 { "OnPlayerLeft", (input) => OnPlayerLeft.ProcessLog(OnPlayerLeftEvent, input) },

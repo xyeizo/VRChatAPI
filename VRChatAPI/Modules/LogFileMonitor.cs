@@ -145,6 +145,23 @@ namespace VRChatAPI.Modules
             vrChatInstance.CurrentPlayer.CurrentPlayers = currentPlayers;
         }
 
+        private void InitializeCurrentUser(FileStream fileStream, StreamReader streamReader)
+        {
+            fileStream.Seek(0, SeekOrigin.Begin); // Start reading from the beginning of the file
+            string content = streamReader.ReadToEnd();
+            string[] lines = content.Split('\n');
+
+            foreach (string line in lines)
+            {
+                var userAuthenticated = OnUserAuthenticated.ProcessLog(null, line);
+                if (!string.IsNullOrEmpty(userAuthenticated.Username))
+                {
+                    CurrentUser = userAuthenticated;
+                    break;
+                }
+            }
+        }
+
         public void Dispose()
         {
             _cancellationTokenSource.Cancel();
