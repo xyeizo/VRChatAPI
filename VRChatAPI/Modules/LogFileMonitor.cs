@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using VRChatAPI.Events;
 using VRChatAPI.SDK;
 
 namespace VRChatAPI.Modules
 {
-    public class LogFileMonitor
+    public class LogFileMonitor : IDisposable
     {
         private readonly string _logFileDirectory;
         public FileInfo? LogFile;
         private long _lastPosition = 0;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         private VRChat vrChatInstance { get; set; }
 
@@ -28,30 +31,41 @@ namespace VRChatAPI.Modules
 
         public void StartMonitoring()
         {
-            Thread logThread = new Thread(async () => await MonitorLogFile());
+            Thread logThread = new Thread(async () => await MonitorLogFile(_cancellationTokenSource.Token));
             logThread.IsBackground = true;
             logThread.Start();
         }
 
-        private async Task MonitorLogFile()
+        private async Task MonitorLogFile(CancellationToken cancellationToken)
         {
-            using (FileStream fileStream = new FileStream(LogFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (StreamReader streamReader = new StreamReader(fileStream, Encoding.Default))
+            try
             {
-                InitializeCurrentRoom(fileStream, streamReader);
-
-                while (true)
+                using (FileStream fileStream = new FileStream(LogFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (StreamReader streamReader = new StreamReader(fileStream, Encoding.Default))
                 {
-                    if (fileStream.Length > _lastPosition)
-                    {
-                        fileStream.Seek(_lastPosition, SeekOrigin.Begin);
-                        string content = await streamReader.ReadToEndAsync();
-                        _lastPosition = fileStream.Position;
+                    InitializeCurrentRoom(fileStream, streamReader);
 
-                        await vrChatInstance.EventManager.HandleEvent(content);
+                    while (!cancellationToken.IsCancellationRequested)
+                    {
+                        if (fileStream.Length > _lastPosition)
+                        {
+                            fileStream.Seek(_lastPosition, SeekOrigin.Begin);
+                            string content = await streamReader.ReadToEndAsync();
+                            Interlocked.Exchange(ref _lastPosition, fileStream.Position);
+
+                            await vrChatInstance.EventManager.HandleEvent(content);
+                        }
+                        await Task.Delay(500, cancellationToken);
                     }
-                    await Task.Delay(500);
                 }
+            }
+            catch (TaskCanceledException)
+            {
+                
+            }
+            catch (Exception ex)
+            {
+                
             }
         }
 
@@ -79,7 +93,13 @@ namespace VRChatAPI.Modules
                 }
             }
 
-            _lastPosition = fileStream.Length;
+            Interlocked.Exchange(ref _lastPosition, fileStream.Length);
+        }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
         }
     }
 }

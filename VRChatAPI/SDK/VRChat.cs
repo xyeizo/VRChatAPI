@@ -26,6 +26,13 @@ namespace VRChatAPI.SDK
             EventManager = new EventManager();
         }
 
+        public Task InitializeAsync()
+        {
+             if (_vrChatConfig.MonitorLogFile)
+                LogFileMonitor.StartMonitoring();
+
+             return Task.CompletedTask;
+        }
 
         public bool IsRunning() => Process.GetProcessesByName("VRChat").Any();
     }
