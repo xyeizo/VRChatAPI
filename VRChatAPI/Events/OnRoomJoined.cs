@@ -24,7 +24,7 @@ namespace VRChatAPI.Events
                     Data = input,
                     DateTime = DateTime.Now,
                     WorldId = match.Groups[1].Value,
-                    RoomInstance = match.Groups[2].Value
+                    RoomInstance = input.Split(":")[3].Trim()
                 };
 
                 if (eventHandler != null)
