@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using VRChatAPI.Events;
+using VRChatAPI.Objects;
 using VRChatAPI.SDK;
 
 namespace VRChatAPI.Modules
@@ -44,6 +45,7 @@ namespace VRChatAPI.Modules
                 using (FileStream fileStream = new FileStream(LogFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (StreamReader streamReader = new StreamReader(fileStream, Encoding.Default))
                 {
+                    InitializeCurrentUser(fileStream, streamReader);
                     InitializeCurrentRoom(fileStream, streamReader);
                     InitializeInstancePlayers(fileStream, streamReader);
 
@@ -107,8 +109,7 @@ namespace VRChatAPI.Modules
 
             Interlocked.Exchange(ref _lastPosition, fileStream.Length);
         }
-
-        public void InitializeInstancePlayers(FileStream fileStream, StreamReader streamReader)
+        private void InitializeInstancePlayers(FileStream fileStream, StreamReader streamReader)
         {
             if (vrChatInstance.CurrentPlayer.Location == null ||
                 string.IsNullOrEmpty(vrChatInstance.CurrentPlayer.Location.WorldId) ||
@@ -144,10 +145,9 @@ namespace VRChatAPI.Modules
 
             vrChatInstance.CurrentPlayer.CurrentPlayers = currentPlayers;
         }
-
         private void InitializeCurrentUser(FileStream fileStream, StreamReader streamReader)
         {
-            fileStream.Seek(0, SeekOrigin.Begin); // Start reading from the beginning of the file
+            fileStream.Seek(0, SeekOrigin.Begin);
             string content = streamReader.ReadToEnd();
             string[] lines = content.Split('\n');
 
@@ -156,7 +156,7 @@ namespace VRChatAPI.Modules
                 var userAuthenticated = OnUserAuthenticated.ProcessLog(null, line);
                 if (!string.IsNullOrEmpty(userAuthenticated.Username))
                 {
-                    CurrentUser = userAuthenticated;
+                    vrChatInstance.CurrentPlayer.Information = new User() { DisplayName = userAuthenticated.Username, UserID = userAuthenticated.UserID };
                     break;
                 }
             }
