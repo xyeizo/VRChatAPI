@@ -14,6 +14,8 @@ namespace VRChatAPI.Modules
 {
     public class LogFileMonitor : IDisposable
     {
+        public bool IsMonitoring { get; set; } = false;
+
         private readonly string _logFileDirectory;
         public FileInfo? LogFile;
         private long _lastPosition = 0;
@@ -51,15 +53,31 @@ namespace VRChatAPI.Modules
 
                     while (!cancellationToken.IsCancellationRequested)
                     {
-                        if (fileStream.Length > _lastPosition)
+                        if (vrChatInstance.IsRunning())
                         {
-                            fileStream.Seek(_lastPosition, SeekOrigin.Begin);
-                            string content = await streamReader.ReadToEndAsync();
-                            Interlocked.Exchange(ref _lastPosition, fileStream.Position);
+                            if (fileStream.Length > _lastPosition)
+                            {
+                                fileStream.Seek(_lastPosition, SeekOrigin.Begin);
+                                string content = await streamReader.ReadToEndAsync();
+                                Interlocked.Exchange(ref _lastPosition, fileStream.Position);
+                                await vrChatInstance.EventManager.HandleEvent(content);
+                            }
 
-                            await vrChatInstance.EventManager.HandleEvent(content);
+                            FileInfo newLogFile = GetLogFile();
+                            if (LogFile.FullName != newLogFile.FullName)
+                            {
+                                LogFile = newLogFile;
+                                fileStream.Position = 0;
+                                _lastPosition = 0;
+                            }
+
+                            await Task.Delay(500, cancellationToken);
                         }
-                        await Task.Delay(500, cancellationToken);
+                        else
+                        {
+                            await Task.Delay(10000, cancellationToken);
+                            continue;
+                        }
                     }
                 }
             }
@@ -72,6 +90,7 @@ namespace VRChatAPI.Modules
                 
             }
         }
+
 
         public FileInfo? GetLogFile()
         {
@@ -143,7 +162,7 @@ namespace VRChatAPI.Modules
                 }
             }
 
-            vrChatInstance.CurrentPlayer.CurrentPlayers = currentPlayers;
+            vrChatInstance.CurrentPlayer.Players = currentPlayers;
         }
         private void InitializeCurrentUser(FileStream fileStream, StreamReader streamReader)
         {
