@@ -34,5 +34,13 @@ namespace VRChatAPI.Events
             }
             return null;
         }
+
+        public bool IsValid()
+        {
+            if (!string.IsNullOrEmpty(WorldId) && !string.IsNullOrEmpty(RoomInstance))
+                return true;
+
+            return false;
+        }
     }
 }
