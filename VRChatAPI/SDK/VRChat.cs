@@ -7,31 +7,25 @@ namespace VRChatAPI.SDK
 {
     public class VRChat
     {
-        private VRChatConfig _vrChatConfig = new VRChatConfig();
+        private VRChatConfig _vrChatConfig;
 
-        public LocalPlayer CurrentPlayer { get; set; }
+        public LocalPlayer CurrentPlayer { get; } = new LocalPlayer();
+        public LogFileMonitor LogFileMonitor { get; private set; }
+        public EventManager EventManager { get; } = new EventManager();
 
-        public LogFileMonitor LogFileMonitor { get; set; }
-        public EventManager EventManager { get; set; }
-
-        public VRChat(VRChatConfig vRChatConfig = null)
+        public VRChat(VRChatConfig vrChatConfig = null)
         {
-            if (vRChatConfig != null)
-                _vrChatConfig = vRChatConfig;
-
+            _vrChatConfig = vrChatConfig ?? new VRChatConfig();
             if (_vrChatConfig.MonitorLogFile)
                 LogFileMonitor = new LogFileMonitor(this);
-
-            CurrentPlayer = new LocalPlayer();
-            EventManager = new EventManager();
         }
 
         public Task InitializeAsync()
         {
-             if (_vrChatConfig.MonitorLogFile)
+            if (_vrChatConfig.MonitorLogFile && LogFileMonitor != null)
                 LogFileMonitor.StartMonitoring();
 
-             return Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public bool IsRunning() => Process.GetProcessesByName("VRChat").Any();

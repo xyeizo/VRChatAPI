@@ -9,6 +9,5 @@ namespace VRChatAPI.Objects
     public class VRChatConfig
     {
         public bool MonitorLogFile { get; set; } = true;
-
     }
 }
