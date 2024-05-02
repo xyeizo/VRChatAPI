@@ -16,15 +16,15 @@ namespace VRChatAPI.Events
 
         public static OnRoomJoined ProcessLog(dynamic eventHandler, string input)
         {
-            var match = Regex.Match(input, @"Joining wrld_(.+):(\d+)");
+            var match = Regex.Match(input, @"Joining wrld_(.+):(\d+)(.*)");
             if (match.Success)
             {
                 var instance = new OnRoomJoined
                 {
                     Data = input,
                     DateTime = DateTime.Now,
-                    WorldId = match.Groups[1].Value,
-                    RoomInstance = input.Split(":")[3].Trim()
+                    WorldId = "wrld_" + match.Groups[1].Value,
+                    RoomInstance = match.Groups[2].Value + match.Groups[3].Value
                 };
 
                 if (eventHandler != null)

@@ -189,8 +189,6 @@ namespace VRChatAPI.Modules
                     }
                 }
             }
-
-
         }
 
         public void Dispose()
